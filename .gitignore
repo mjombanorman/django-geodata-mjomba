@@ -1,0 +1,7 @@
+dist/
+django_geodata_mjomba.egg-info/
+geodata.egg-info/
+build/
+__pycache__
+Pipfile
+Pipfile.lock
