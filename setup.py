@@ -6,7 +6,7 @@ with open(os.path.join(os.path.dirname(__file__), 'README.md'), encoding='utf-8'
     long_description = f.read()
 
 setup(
-    name='geodata',
+    name='django-geodata-mjomba',
     version='1.1.0',  # Updated version number
     packages=find_packages(),
     include_package_data=True,
