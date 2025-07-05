@@ -5,3 +5,7 @@ build/
 __pycache__
 Pipfile
 Pipfile.lock
+dist/
+*.pyc
+*.pyo
+Pipfile
