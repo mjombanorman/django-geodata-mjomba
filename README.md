@@ -11,7 +11,7 @@ Credit for the data goes to [countries-states-cities-database](https://github.co
 Install the package using pip:
 
 ```bash
-pip install geodata
+pip install django-geodata-mjomba
 ```
 
 ## Setup
@@ -168,13 +168,17 @@ This package is licensed under the MIT License.
 
 ## Changelog
 
-### 1.1.0 (2025-06-15)
+### 1.1.1 (2025-07-05)
 
-- Added support for translations in models
-- Improved data loading performance with batch processing
-- Added database indexes for better query performance
-- Added convenience methods for coordinates and timezones
-- Fixed field naming consistency
+- Fixed data loading issues with optional fields:
+  - Made `native` field in Country model optional
+  - Made `latitude` and `longitude` fields in State model optional
+  - Added proper handling of None values in coordinates
+  - Added error handling for missing regions/subregions
+- Improved data loading robustness:
+  - Added warnings for missing region/subregion references
+  - Better handling of incomplete data
+  - More graceful error recovery during data loading
 
 ### 1.0.0
 
