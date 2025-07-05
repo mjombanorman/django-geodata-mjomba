@@ -9,3 +9,12 @@ dist/
 *.pyc
 *.pyo
 Pipfile
+.DS_Store
+*.egg-info/
+*.egg
+*.log
+*.sqlite3
+*.db
+*.pyc
+setup.py
+MANIFEST.in
