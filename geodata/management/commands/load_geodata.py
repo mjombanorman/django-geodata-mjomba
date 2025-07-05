@@ -36,65 +36,87 @@ class Command(BaseCommand):
 
         self.stdout.write('Loading geographical data...')
 
-        # Load regions
-        self.stdout.write('Loading regions...')
-        with open(regions_file, encoding='utf-8') as f:
-            regions_data = json.load(f)
-            for region_data in regions_data:
-                Region.objects.update_or_create(
-                    id=region_data['id'],
-                    defaults={
-                        'name': region_data['name'],
-                        'wiki_data_id': region_data.get('wikiDataId'),
-                        'translations': region_data.get('translations', {})
-                    }
-                )
+        try:
+            # Load regions
+            self.stdout.write('Loading regions...')
+            with open(regions_file, encoding='utf-8') as f:
+                regions_data = json.load(f)
+                for region_data in regions_data:
+                    Region.objects.update_or_create(
+                        id=region_data['id'],
+                        defaults={
+                            'name': region_data['name'],
+                            'wiki_data_id': region_data.get('wikiDataId'),
+                            'translations': region_data.get('translations', {})
+                        }
+                    )
 
-        # Load subregions
-        self.stdout.write('Loading subregions...')
-        with open(subregions_file, encoding='utf-8') as f:
-            subregions_data = json.load(f)
-            for subregion_data in subregions_data:
-                region = Region.objects.get(id=subregion_data['region_id'])
-                SubRegion.objects.update_or_create(
-                    id=subregion_data['id'],
-                    defaults={
-                        'name': subregion_data['name'],
-                        'region': region,
-                        'wiki_data_id': subregion_data.get('wikiDataId'),
-                        'translations': subregion_data.get('translations', {})
-                    }
-                )
+            # Load subregions
+            self.stdout.write('Loading subregions...')
+            with open(subregions_file, encoding='utf-8') as f:
+                subregions_data = json.load(f)
+                for subregion_data in subregions_data:
+                    try:
+                        region = Region.objects.get(id=subregion_data['region_id'])
+                        SubRegion.objects.update_or_create(
+                            id=subregion_data['id'],
+                            defaults={
+                                'name': subregion_data['name'],
+                                'region': region,
+                                'wiki_data_id': subregion_data.get('wikiDataId'),
+                                'translations': subregion_data.get('translations', {})
+                            }
+                        )
+                    except Region.DoesNotExist:
+                        self.stdout.write(self.style.ERROR(
+                            f"Warning: Region {subregion_data['region_id']} not found for subregion {subregion_data['id']}"
+                        ))
+                        continue
 
-        # Load countries
-        self.stdout.write('Loading countries...')
-        with open(countries_file, encoding='utf-8') as f:
-            countries_data = json.load(f)
-            for country_data in countries_data:
-                region = Region.objects.get(id=country_data['region_id'])
-                subregion = SubRegion.objects.get(
-                    id=country_data['subregion_id'])
-                Country.objects.update_or_create(
-                    id=country_data['id'],
-                    defaults={
-                        'name': country_data['name'],
-                        'iso3': country_data['iso3'],
-                        'iso2': country_data['iso2'],
-                        'numeric_code': country_data['numeric_code'],
-                        'phonecode': country_data['phonecode'],
-                        'capital': country_data['capital'],
-                        'currency': country_data['currency'],
-                        'currency_name': country_data['currency_name'],
-                        'currency_symbol': country_data['currency_symbol'],
-                        'tld': country_data['tld'],
-                        'native': country_data['native'],
-                        'nationality': country_data['nationality'],
-                        'timezones': country_data['timezones'],
-                        'translations': country_data.get('translations', {}),
-                        'region': region,
-                        'subregion': subregion
-                    }
-                )
+            # Load countries
+            self.stdout.write('Loading countries...')
+            with open(countries_file, encoding='utf-8') as f:
+                countries_data = json.load(f)
+                for country_data in countries_data:
+                    try:
+                        region = Region.objects.get(id=country_data['region_id'])
+                        subregion = SubRegion.objects.get(
+                            id=country_data['subregion_id'])
+                        Country.objects.update_or_create(
+                            id=country_data['id'],
+                            defaults={
+                                'name': country_data['name'],
+                                'iso3': country_data['iso3'],
+                                'iso2': country_data['iso2'],
+                                'numeric_code': country_data['numeric_code'],
+                                'phonecode': country_data['phonecode'],
+                                'capital': country_data['capital'],
+                                'currency': country_data['currency'],
+                                'currency_name': country_data['currency_name'],
+                                'currency_symbol': country_data['currency_symbol'],
+                                'tld': country_data['tld'],
+                                'native': country_data.get('native', ''),  # Provide empty string as default
+                                'nationality': country_data['nationality'],
+                                'timezones': country_data['timezones'],
+                                'translations': country_data.get('translations', {}),
+                                'region': region,
+                                'subregion': subregion
+                            }
+                        )
+                    except Region.DoesNotExist:
+                        self.stdout.write(self.style.ERROR(
+                            f"Warning: Region {country_data['region_id']} not found for country {country_data['id']}"
+                        ))
+                        continue
+                    except SubRegion.DoesNotExist:
+                        self.stdout.write(self.style.ERROR(
+                            f"Warning: SubRegion {country_data['subregion_id']} not found for country {country_data['id']}"
+                        ))
+                        continue
+
+        except Exception as e:
+            self.stdout.write(self.style.ERROR(f"Error loading data: {str(e)}"))
+            raise
 
         # Load states
         self.stdout.write('Loading states...')
@@ -120,8 +142,8 @@ class Command(BaseCommand):
                         country_name=state_data['country_name'],
                         state_code=state_data.get('state_code'),
                         type=state_data['type'],
-                        latitude=float(state_data['latitude']),
-                        longitude=float(state_data['longitude'])
+                        latitude=float(state_data['latitude']) if state_data['latitude'] is not None else None,
+                        longitude=float(state_data['longitude']) if state_data['longitude'] is not None else None
                     )
                     states_to_create.append(state)
                 

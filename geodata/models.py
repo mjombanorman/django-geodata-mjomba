@@ -47,7 +47,7 @@ class Country(models.Model):
     currency_name = models.CharField(max_length=255)
     currency_symbol = models.CharField(max_length=255)
     tld = models.CharField(max_length=255)
-    native = models.CharField(max_length=255)
+    native = models.CharField(max_length=255, blank=True, null=True)
     region = models.ForeignKey(
         Region, on_delete=models.CASCADE, related_name='countries')
     subregion = models.ForeignKey(
@@ -87,8 +87,8 @@ class State(models.Model):
     country_name = models.CharField(max_length=255)
     state_code = models.CharField(max_length=255, blank=True, null=True)
     type = models.CharField(max_length=255)
-    latitude = models.FloatField()
-    longitude = models.FloatField()
+    latitude = models.FloatField(blank=True, null=True)
+    longitude = models.FloatField(blank=True, null=True)
 
     class Meta:
         verbose_name = "State"

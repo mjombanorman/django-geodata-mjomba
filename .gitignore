@@ -18,3 +18,4 @@ Pipfile
 *.pyc
 setup.py
 MANIFEST.in
+test_project/
